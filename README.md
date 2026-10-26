@@ -34,6 +34,34 @@
 
 ## 当前状态
 
-仅完成 Git 仓库初始化，尚未创建应用代码、安装依赖或配置数据库。
+已建立 FastAPI 应用入口、`GET /health` 接口和应用生命周期中的数据库初始化、关闭流程。
 
-下一步：认识 FastAPI 中的应用对象、路由和请求处理函数，亲手实现第一个 `GET /health` 接口；随后再学习 SQLite。
+SQLite 初始化结构包含 6 张核心业务表，SQL 与 Python 初始化代码分开。原项目的 14 张表另存为完整结构参考，表关系与调整说明见 [数据库说明](docs/database.md)。
+
+路由按模块组织，总路由统一接入应用。现有 `GET /product` 是空列表示例，调用 Service，尚未查询数据库。
+
+```text
+main.py                       # 应用创建、生命周期、接入总路由
+database.py                   # 数据库连接、初始化和关闭
+router/
+├── router.py                 # 汇总各模块的 APIRouter
+├── health.py                 # 健康检查接口
+└── product.py                # 商品示例接口，调用 Service
+services/
+└── product_service.py        # 商品示例的处理逻辑
+schemas/                      # 随业务接口添加请求、响应模型
+sql/
+├── schema.sql                # 核心业务表结构
+└── reference/
+    └── original-schema.sql   # 原项目完整表结构参考
+```
+
+`GET /health` 由 `router/health.py` 直接返回状态。`GET /product` 的调用链是：
+
+```text
+main.app → 总路由 → product 路由 → product_service.list_products()
+```
+
+项目管理使用 `projects` 命名；当前的 `product` 是已有学习示例，两者属于不同模块。
+
+下一步：亲手实现 `POST /projects` 和 `GET /projects`，完成创建项目、保存到数据库、再查询出来的第一个业务闭环。
